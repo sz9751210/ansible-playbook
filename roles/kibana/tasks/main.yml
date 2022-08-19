@@ -1,0 +1,55 @@
+---
+- name: Import the Kibana GPG Key.
+  rpm_key: 
+    state: present 
+    key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+
+- name: Copy kibana.repo
+  copy: 
+    src: "{{ playbook_dir }}/files/kibana/kibana.repo"
+    dest: /etc/yum.repos.d/kibana.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install Kibana
+  yum: name=kibana state=latest
+
+- name: Backup kibana.yml
+  command: cp /etc/kibana/kibana.yml /etc/kibana/kibana.yml.backup
+
+- name: Copy config
+  template: 
+    src: "{{ playbook_dir }}/roles/kibana/templates/kibana.yml.j2"
+    dest: "/etc/kibana/kibana.yml"
+    owner: root
+    group: kibana
+    mode: 0660
+
+- name: Create kibana certs directory
+  file:
+    path: "/etc/kibana/certs"
+    state: directory
+    mode: '0755'
+
+- name: Copy elasticsearch cert
+  copy: 
+    src: "{{ playbook_dir }}/files/elasticsearch/certs/{{ item.name }}"
+    dest: /etc/kibana/certs/{{ item.name }}
+    owner: root
+    group: kibana
+    mode: '0640'
+  with_items: 
+    - { name: http_ca.crt }
+
+- name: Start kibana
+  systemd:
+    name: kibana
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check kibana status
+  shell: "systemctl status kibana | grep -c 'active (running)'"
+  register: kibana_status
+  until: kibana_status.stdout.find("1") != -1

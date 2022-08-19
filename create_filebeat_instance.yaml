@@ -1,0 +1,28 @@
+---
+- name: Create instances
+  hosts: filebeat
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/instance_var.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create.yml
+      run_once: true
+
+- name: Setup instances
+  hosts: filebeat
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks:
+    - include_tasks: roles/instance/tasks/setup.yml
+
+- name: Install filebeat
+  hosts: filebeat
+  become: yes
+  become_user: root
+  gather_facts: no
+  # vars_files:
+  #   - vars/filebeat/filebeat_var.yml
+  tasks:
+    - include_tasks: roles/filebeat/tasks/main.yml

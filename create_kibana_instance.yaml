@@ -1,0 +1,28 @@
+---
+- name: Create instances
+  hosts:  kibana
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/instance_var.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create.yml
+      run_once: true
+
+- name: Setup instances
+  hosts:  kibana
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks: 
+    - include_tasks: roles/instance/tasks/setup.yml
+
+- name: Install kibana
+  hosts: kibana
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/kibana/kibana_var.yml
+  tasks: 
+    - include_tasks: roles/kibana/tasks/main.yml

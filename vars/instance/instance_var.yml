@@ -1,0 +1,12 @@
+---
+## Setting Instance ##
+image: centos-7-v20220719
+image_project: centos-cloud
+label:
+  env: dev
+subnet: projects/xxx/regions/us-central1/subnetworks/default
+tags:
+  - ansible-elk
+machine_type: e2-medium
+boot_disk_size: 20
+boot_disk_type: pd-standard

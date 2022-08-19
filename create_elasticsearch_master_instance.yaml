@@ -1,0 +1,48 @@
+---
+- name: Create instances
+  hosts:  elastic_master
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/instance_var.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create.yml
+      run_once: true
+
+- name: Setup instances
+  hosts:  elastic_master
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks: 
+    - include_tasks: roles/instance/tasks/setup.yml
+
+- name: Create disks
+  hosts: elastic_master
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/elasticsearch/elasticsearch_var.yml
+  tasks:
+    - include_tasks: roles/elasticsearch/tasks/create_disk.yml
+      run_once: true
+
+- name: Setup disks
+  hosts: elastic_master
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/elasticsearch/elasticsearch_var.yml
+  tasks:
+    - include_tasks: roles/elasticsearch/tasks/setup_disk.yml
+
+- name: Install elastic init master
+  hosts: elastic_master
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/elasticsearch/elasticsearch_var.yml
+  tasks: 
+    - include_tasks: roles/elasticsearch/tasks/main.yml

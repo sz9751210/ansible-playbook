@@ -1,0 +1,18 @@
+[localhost]
+localhost internal_ip=127.0.0.1
+
+[elastic_master]
+elk-1 internal_ip=10.140.0.2 zone=asia-east1-b node_name=node-1 node_role=hot
+
+[elastic_slave]
+elk-2 internal_ip=10.140.0.3 zone=asia-east1-b node_name=node-2 node_role=warm master_ip=10.128.0.2
+elk-3 internal_ip=10.140.0.4 zone=asia-east1-b node_name=node-3 node_role=warm master_ip=10.128.0.2
+
+
+[logstash]
+logstash-1 internal_ip=10.140.0.5 zone=asia-east1-b
+
+[kibana]
+kibana-1 internal_ip=10.140.0.6 zone=asia-east1-b
+
+

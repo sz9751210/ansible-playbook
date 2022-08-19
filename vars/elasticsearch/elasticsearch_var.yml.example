@@ -1,0 +1,9 @@
+---
+## Setting Disk ##
+label:
+  {{ key }}: {{ value }}
+attach_disk_size: {{ attach_disk_size }}
+attach_disk_type: {{ attach_disk_type }}
+
+cluster_name: {{ cluster_name }}
+path_data: {{ path_data } }}

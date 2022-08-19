@@ -1,0 +1,28 @@
+---
+- name: Create instances
+  hosts:  logstash
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/instance_var.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create.yml
+      run_once: true
+
+- name: Setup instances
+  hosts:  logstash
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks: 
+    - include_tasks: roles/instance/tasks/setup.yml
+
+- name: Install logstash
+  hosts: logstash
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/logstash/logstash_var.yml
+  tasks: 
+    - include_tasks: roles/logstash/tasks/main.yml

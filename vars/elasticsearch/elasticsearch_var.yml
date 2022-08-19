@@ -1,0 +1,9 @@
+---
+## Setting Disk ##
+label:
+  env: dev
+attach_disk_size: 30G
+attach_disk_type: pd-balanced
+
+cluster_name: elk
+path_data: /home/elasticsearch
