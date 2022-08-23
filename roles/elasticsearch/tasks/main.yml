@@ -5,9 +5,9 @@
 - name: Set up elastic init master
   include: setup_elastic_master.yml
   when:
-    - master_ip is undefined
+    - inventory_hostname in groups["elastic_master"]
 
 - name: Set up elastic slave
   include: setup_elastic_slave.yml  
   when:
-    - master_ip is defined
+    - inventory_hostname in groups["elastic_slave"]

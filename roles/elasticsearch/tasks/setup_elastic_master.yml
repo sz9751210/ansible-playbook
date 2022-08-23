@@ -18,18 +18,18 @@
     group: elasticsearch
     mode: 0660
 
-- name: start elasticsearch
+- name: Start elasticsearch
   systemd:
     name: elasticsearch
     state: started
     enabled: yes
     daemon_reload: yes
 
-- name: install pexpect
+- name: Install pexpect
   pip:
     name: pexpect
 
-- name: change elasticsearch password
+- name: Change elasticsearch password
   expect:
       command: /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i
       responses:
@@ -37,7 +37,7 @@
         'Enter password for \[elastic\]\:': "elastic"
         'Re\-enter password for \[elastic\]\:': "elastic"
 
-- name: check elastic status
+- name: Check cluster status
   shell: "curl -s -k -u elastic:elastic https://localhost:9200/ | grep -c Search"
   register: host_status
   until: host_status.stdout.find("1") != -1
@@ -50,7 +50,7 @@
         'Enter password for \[kibana_system\]\:': "kibana_system"
         'Re\-enter password for \[kibana_system\]\:': "kibana_system"
 
-- name: get token
+- name: Get token
   shell: |
     declare token
     token=$(/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node)
@@ -59,14 +59,14 @@
 - name: Transfer token from master to local
   fetch: src=/tmp/token dest={{ playbook_dir }}/vars/elasticsearch/token flat=yes
 
-- name: cp api.sh
+- name: Copy elastic api.sh
   copy: 
-    src: "{{ playbook_dir }}/files/elasticsearch/api.sh"
+    src: "{{ playbook_dir }}/files/elasticsearch/api.sh.{{ ilm_policy }}"
     dest: /tmp/api.sh
     owner: root
     group: root
     mode: '0777'
 
-- name: run script
+- name: Run elastic api.sh
   shell: |
     sh /tmp/api.sh

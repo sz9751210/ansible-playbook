@@ -22,7 +22,7 @@
 
 - name: Copy logstash.config
   copy: 
-    src: "{{ playbook_dir }}/files/logstash/"
+    src: "{{ playbook_dir }}/files/logstash/{{ ilm_policy }}/"
     dest: /etc/logstash
     owner: root
     group: root
@@ -31,15 +31,14 @@
 - name: Merge host parameter
   debug:
     msg: >-
-      {% set index_count = [] %}
-        {%- for key in host -%}
-          {% if index_count.append(1) %}{% endif %}
-          "{{ host[key] }}:{{ port }}"
-          {%- if index_count|length < (host|length) -%}
-          ,
-          {%- endif -%}
+      {% set index = 0 %}
+      {%- for host in groups['elastic_slave'] -%}
+        {%- if loop.first %}"{{ master_ip }}:{{ elastic_port }}", {% endif -%}
+        {%- set index = index + 1 -%}
+        "{{ hostvars[host]['internal_ip'] }}:{{ elastic_port }}"
+        {%- if not loop.last %}, {% endif -%}
       {%- endfor -%}
-  register: host_parm
+  register: host_parm 
 
 - name: Setting logstash pipeline
   shell: |

@@ -40,13 +40,12 @@ server.host: "{{ internal_ip }}"
 
 # =================== System: Elasticsearch ===================
 # The URLs of the Elasticsearch instances to use for all your queries.
-elasticsearch.hosts: [{% set index_count = [] %}
-  {%- for key in host -%}
-    {% if index_count.append(1) %}{% endif %}
-    "https://{{ host[key] }}:{{ port }}"
-    {%- if index_count|length < (host|length) -%}
-    ,
-    {%- endif -%}
+elasticsearch.hosts: [{% set index = 0 %}
+  {%- for host in groups['elastic_slave'] -%}
+    {%- if loop.first %}"https://{{ master_ip }}:{{ elastic_port }}", {% endif -%}
+    {%- set index = index + 1 -%}
+    "https://{{ hostvars[host]['internal_ip'] }}:{{ elastic_port }}"
+    {%- if not loop.last %}, {% endif -%}
 {%- endfor -%}]
 
 # If your Elasticsearch is protected with basic authentication, these settings provide

@@ -1,8 +1,8 @@
 ---
-- name: add to cluster
+- name: Add to cluster
   shell: "echo y | /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token {{ token }}"
 
-- name: check cluster status
+- name: Check cluster status
   shell: " grep -c {{ master_ip }} /etc/elasticsearch/elasticsearch.yml"
   register: host_status
   until: host_status.stdout.find("1") != -1
@@ -15,7 +15,7 @@
     group: elasticsearch
     mode: 0660
 
-- name: start elasticsearch
+- name: Start elasticsearch
   systemd:
     name: elasticsearch
     state: started

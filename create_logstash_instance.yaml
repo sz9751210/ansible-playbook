@@ -17,12 +17,12 @@
   tasks: 
     - include_tasks: roles/instance/tasks/setup.yml
 
-- name: Install logstash
+- name: Install Logstash
   hosts: logstash
   become: yes
   become_user: root
   gather_facts: no
   vars_files:
-    - vars/logstash/logstash_var.yml
+    - vars/elasticsearch/elasticsearch_var.yml
   tasks: 
     - include_tasks: roles/logstash/tasks/main.yml

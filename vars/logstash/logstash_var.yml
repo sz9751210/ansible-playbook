@@ -1,8 +1,0 @@
----
-ilm_policy: elk
-host:
-  elk_host_1: 10.140.0.2
-  elk_host_2: 10.140.0.3
-  elk_host_3: 10.140.0.4
-
-port: 9200

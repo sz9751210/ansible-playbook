@@ -1,7 +1,0 @@
----
-host:
-  elk_host_1: { { elk_host_1 } }
-  elk_host_2: { { elk_host_2 } }
-  elk_host_3: { { elk_host_3 } }
-
-port: 9200

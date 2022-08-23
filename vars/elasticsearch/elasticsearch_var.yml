@@ -1,9 +1,5 @@
 ---
-## Setting Disk ##
-label:
-  env: dev
-attach_disk_size: 30G
-attach_disk_type: pd-balanced
-
 cluster_name: elk
-path_data: /home/elasticsearch
+master_ip: 10.140.0.2
+ilm_policy: elk
+elastic_port: 9200

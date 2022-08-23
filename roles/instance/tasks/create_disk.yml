@@ -1,5 +1,5 @@
 ---
-  - name: merge label parameter
+  - name: Merge label parameter
     debug:
       msg: >-
         {% set index = 0 %}
@@ -23,16 +23,16 @@
                   --type {{ attach_disk_type }} "
         with_items:
           - "{{ groups[group_names[0]] }}"
-        register: vm_instances_by_custom
+        register: vm_disk_by_custom
         async: 100
         poll: 0
 
-      - name: wait for instance creation to complete
+      - name: wait for disk creation to complete
         async_status: jid={{ item.ansible_job_id }}
-        register: instances_jobs
-        until: instances_jobs.finished
+        register: disk_jobs
+        until: disk_jobs.finished
         retries: 300
-        with_items: "{{ vm_instances_by_custom.results }}"
+        with_items: "{{ vm_disk_by_custom.results }}"
 
   - name: Mounting Disk
     block:
@@ -43,13 +43,13 @@
                   --zone {{ hostvars[item].zone }} "
         with_items:
           - "{{ groups[group_names[0]] }}"
-        register: vm_instances_by_custom
+        register: vm_disk_by_custom
         async: 100
         poll: 0
 
-      - name: wait for instance creation to complete
+      - name: wait for disk mounting complete
         async_status: jid={{ item.ansible_job_id }}
-        register: instances_jobs
-        until: instances_jobs.finished
+        register: disk_jobs
+        until: disk_jobs.finished
         retries: 300
-        with_items: "{{ vm_instances_by_custom.results }}"
+        with_items: "{{ vm_disk_by_custom.results }}"

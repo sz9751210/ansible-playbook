@@ -1,9 +1,5 @@
 ---
-## Setting Disk ##
-label:
-  {{ key }}: {{ value }}
-attach_disk_size: {{ attach_disk_size }}
-attach_disk_type: {{ attach_disk_type }}
-
 cluster_name: {{ cluster_name }}
-path_data: {{ path_data } }}
+master_ip: {{ master_ip }}
+ilm_policy: {{ ilm_policy }}
+elastic_port: {{ elastic_port }}
