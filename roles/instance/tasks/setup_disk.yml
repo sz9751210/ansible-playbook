@@ -26,6 +26,6 @@
   shell: |
     declare device
     device=$(lsblk -o NAME,SIZE,UUID | grep {{ attach_disk_size }} | tail -1 | cut -d ' ' -f 1)
-    lsblk -o NAME,MOUNTPOINT | grep $device | grep {{ mount_path }} | cut -d '/' -f 3
+    lsblk -o NAME,MOUNTPOINT | grep $device | grep -o {{ mount_path }}
   register: disk_status
-  until: disk_status.stdout.find("{{ mount_path }}") != -1
+  until: disk_status.stdout.find(mount_path|string) != -1

@@ -12,3 +12,4 @@ boot_disk_size: 20
 boot_disk_type: pd-standard
 attach_disk_size: 30G
 attach_disk_type: pd-balanced
+mount_path: /home/elasticsearch
