@@ -37,7 +37,7 @@
         'Enter password for \[elastic\]\:': "elastic"
         'Re\-enter password for \[elastic\]\:': "elastic"
 
-- name: Check cluster status
+- name: Check elastic status
   shell: "curl -s -k -u elastic:elastic https://localhost:9200/ | grep -c Search"
   register: host_status
   until: host_status.stdout.find("1") != -1

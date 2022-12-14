@@ -1,0 +1,10 @@
+---
+- name: Download install script
+  get_url:
+    url: https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+    dest: /tmp/add-google-cloud-ops-agent-repo.sh
+    mode: '0775'
+
+- name: Install Google Ops Agent
+  command: bash /tmp/add-google-cloud-ops-agent-repo.sh --also-install
+

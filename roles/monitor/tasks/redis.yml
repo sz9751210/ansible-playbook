@@ -1,0 +1,26 @@
+---
+- name: copy redis_exporter
+  copy:
+    src: "{{ playbook_dir }}/files/redis/redis_exporter"
+    dest: /home/prometheus
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+- name:  copy exporter config
+  copy:
+    src: "{{ playbook_dir }}/files/redis/redis_exporter/redis_exporter.service"
+    dest: /etc/systemd/system/redis_exporter.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: start redis_exporter
+  systemd:
+    name: redis_exporter
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: check redis_exporter status
+  shell: "curl -s 127.0.0.1:9101"

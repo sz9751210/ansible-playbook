@@ -1,0 +1,5 @@
+---
+attach_disk_size: {{ attach_disk_size }}
+attach_disk_type: pd-balanced
+mount_path: {{ mount_path }}
+replica_zone: {{replica_zone}}

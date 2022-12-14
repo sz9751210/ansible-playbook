@@ -56,3 +56,17 @@ curl -s -k -u elastic:elastic -XPUT -H "content-type:application/json"  'https:/
     }
   }
 }'
+
+curl -s -k -u elastic:elastic -XPUT -H "content-type:application/json"  'https://127.0.0.1:9200/_index_template/dead-letter-queue-template'  -d '{
+  "index_patterns": ["dead-letter-queue-*"], 
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1,
+      "refresh_interval" : "5s",
+      "index.lifecycle.name": "elk",
+      "index.lifecycle.rollover_alias": "dead-letter-queue",
+      "index.routing.allocation.include._tier_preference": "data_hot"
+    }
+  }
+}'

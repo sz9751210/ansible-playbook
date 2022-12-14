@@ -48,3 +48,21 @@
     - vars/elasticsearch/token
   tasks: 
     - include_tasks: roles/elasticsearch/tasks/main.yml
+
+- name: Install Monitor
+  hosts: elastic_master
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/monitor/monitor_var.yml
+  tasks:
+    - include_tasks: roles/monitor/tasks/main.yml
+
+- name: Install Google Ops Agent
+  hosts: elastic_master
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks:
+    - include_tasks: roles/ops_agent/tasks/main.yml

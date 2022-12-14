@@ -1,0 +1,5 @@
+---
+attach_disk_size: 30G
+attach_disk_type: pd-balanced
+mount_path: /home/elasticsearch
+replica_zone: asia-east1-b

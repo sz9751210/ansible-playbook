@@ -1,0 +1,3 @@
+---
+enabled_node_exporter: true
+# enabled_redis_exporter: true

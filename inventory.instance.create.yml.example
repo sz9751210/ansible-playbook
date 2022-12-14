@@ -1,6 +1,9 @@
 [localhost]
 localhost internal_ip=127.0.0.1
 
+[creation]
+#{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
+
 [elastic_master]
 #{{ hostname }} internal_ip={{ IP }} zone={{ zone }} node_name={{ node_name }} node_role={{ node_role }}
 
@@ -12,5 +15,3 @@ localhost internal_ip=127.0.0.1
 
 [kibana]
 #{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
-
-
