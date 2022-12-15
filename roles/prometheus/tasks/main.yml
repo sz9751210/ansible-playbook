@@ -1,0 +1,31 @@
+- name: create prometheus directory
+  file:
+    path: "/etc/prometheus"
+    state: directory
+    mode: '0755'
+
+- name: copy prometheus libarary
+  unarchive:
+    src: "{{ playbook_dir }}/files/prometheus/lib/prometheus-2.36.2.linux-amd64.tar.gz"
+    dest: /etc/
+    owner: root
+    group: root
+
+- name: copy prometheus bin file
+  shell: |
+    cp /etc/prometheus/prometheus /usr/local/bin/prometheus
+    cp /etc/prometheus/promtool /usr/local/bin/promtool
+
+- name: copy prometheus systemctl config
+  copy:
+    src: "{{ playbook_dir }}/files/prometheus/conf/prometheus.service"
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+
+- name: Start prometheus
+  systemd:
+    name: prometheus
+    state: started
+    enabled: yes
+    daemon_reload: yes
