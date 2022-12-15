@@ -15,3 +15,6 @@ localhost internal_ip=127.0.0.1
 
 [kibana]
 #{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
+
+[filebeat]
+#{{ hostname }} internal_ip={{ IP }} zone={{ zone }}

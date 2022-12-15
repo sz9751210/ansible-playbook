@@ -1,0 +1,4 @@
+---
+log_host: {{ log_host }}
+log_path:
+  - {{ log_path }}

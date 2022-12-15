@@ -1,0 +1,20 @@
+filebeat.config.inputs:
+ enabled: true
+ path: /etc/filebeat/filebeat.yml
+ reload.enabled: true
+ reload.period: 10s
+
+filebeat.inputs:
+ - type: log
+   fields:
+     background: true
+   paths:
+    {% set index = 0 %}
+      {%- for key in log_path -%}
+        {%- set index = index + 1 -%}
+         - {{ key }}
+         {%- if not loop.last %}{{ '\n    ' }}{% endif -%}
+    {%- endfor -%}
+{{ '\n    ' }}
+output.logstash:
+  hosts: ["{{ log_host }}:5044"]
