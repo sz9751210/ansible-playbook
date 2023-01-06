@@ -21,3 +21,6 @@ localhost internal_ip=127.0.0.1
 
 [prometheus]
 #{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
+
+[influxdb]
+#{{ hostname }} internal_ip={{ IP }} zone={{ zone }}

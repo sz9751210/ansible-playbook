@@ -1,0 +1,26 @@
+---
+- name: Copy Influxdb.repo
+  copy: 
+    src: "{{ playbook_dir }}/files/influxdb/influxdb.repo"
+    dest: /etc/yum.repos.d/influxdb.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install Influxdb
+  yum: name=influxdb state=latest
+
+- name: Backup Influxdb.yml
+  command: cp /etc/influxdb/influxdb.conf /etc/influxdb/influxdb.conf.backup
+
+- name: Start influxdb
+  systemd:
+    name: influxdb
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check influxdb status
+  shell: "systemctl status influxdb | grep -c 'active (running)'"
+  register: influxdb_status
+  until: influxdb_status.stdout.find("1") != -1
