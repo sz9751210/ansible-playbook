@@ -1,0 +1,8 @@
+---
+- name: Delete instances
+  hosts: delete
+  gather_facts: no
+  connection: local
+  tasks:
+    - include_tasks: roles/instance/tasks/delete.yml
+      run_once: true
