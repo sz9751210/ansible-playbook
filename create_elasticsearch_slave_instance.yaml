@@ -50,7 +50,7 @@
     - include_tasks: roles/elasticsearch/tasks/main.yml
 
 - name: Install Monitor
-  hosts: elastic_master
+  hosts: elastic_slave
   become: yes
   become_user: root
   gather_facts: no
@@ -60,7 +60,7 @@
     - include_tasks: roles/monitor/tasks/main.yml
 
 - name: Install Google Ops Agent
-  hosts: elastic_master
+  hosts: elastic_slave
   become: yes
   become_user: root
   gather_facts: no
