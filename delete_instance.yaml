@@ -4,5 +4,5 @@
   gather_facts: no
   connection: local
   tasks:
-    - include_tasks: roles/instance/tasks/delete.yml
+    - include_tasks: single-tasks/delete.yml
       run_once: true

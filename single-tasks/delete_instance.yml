@@ -1,7 +1,7 @@
 ---
   - name: Remove instances
     block:
-      - name: creating
+      - name: deleting
         command: "{{ gcloud_bin_path }} compute instances delete {{ hostvars[item].inventory_hostname }}
                   --project {{ project }}
                   --zone {{ hostvars[item].zone }}"
@@ -23,7 +23,7 @@
       - command: "{{ gcloud_bin_path }} compute addresses delete {{ item }}-internal"
         with_items:
           - "{{ groups[group_names[0]] }}"
-        register: reserve_vm_ip
+        register: release_vm_ip
         async: 100
         poll: 0
 
@@ -32,4 +32,4 @@
         register: instances_jobs
         until: instances_jobs.finished
         retries: 300
-        with_items: "{{ reserve_vm_ip.results }}"
+        with_items: "{{ release_vm_ip.results }}"
