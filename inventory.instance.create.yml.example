@@ -25,5 +25,8 @@ localhost internal_ip=127.0.0.1
 [influxdb]
 #{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
 
+[jenkins]
+#{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
+
 [delete]
 #{{ hostname }} internal_ip={{ IP }} zone={{ zone }}
