@@ -1,0 +1,69 @@
+---
+- name: waiting for host to start
+  wait_for_connection:
+    delay: 10
+
+- name: disable selinux
+  selinux: state=disabled
+
+- name: install epel-release
+  yum: name=epel-release state=latest
+
+- name: install dependencies
+  yum: 
+    name: "{{ package }}"
+    state: present
+
+- name: install ntpd
+  service: name=ntpd state=restarted enabled=yes
+
+- name: set timezone to Asia/Taipei
+  timezone: name=Asia/Taipei
+
+- name: disable services
+  service: name="{{ item }}" state=stopped enabled=no
+  with_items:
+    - firewalld
+    - yum-cron
+    - chronyd
+
+- name: set system parameter
+  sysctl: name={{ item.name }} value={{ item.value }} state=present
+  with_items:
+    - { name: net.ipv4.ip_forward,   value: 1 }
+    - { name: net.ipv4.tcp_tw_reuse,   value: 1 }
+    - { name: net.core.netdev_max_backlog, value: 10000 }
+    - { name: net.ipv4.tcp_max_syn_backlog, value: 65535 }
+    - { name: net.core.somaxconn, value: 65535 }
+    - { name: vm.swappiness, value: 0 }
+    - { name: vm.overcommit_memory , value: 1 }
+    - { name: vm.panic_on_oom , value: 0 }
+
+- name: setting max process
+  pam_limits: domain=* limit_type=soft limit_item=nproc value=65535
+- pam_limits: domain=* limit_type=hard limit_item=nproc value=65535
+- pam_limits: domain=* limit_type=soft limit_item=nofile value=65535
+- pam_limits: domain=* limit_type=hard limit_item=nofile value=65535
+
+- name: setting user limiits
+  pam_limits:
+    dest: "/etc/security/limits.d/20-nproc.conf"
+    domain: '*'
+    limit_type: "{{ item.limit_type }}"
+    limit_item: "{{ item.limit_item }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { limit_type: 'soft',limit_item: 'nofile', value: '65535' }
+    - { limit_type: 'hard',limit_item: 'nofile', value: '65535' }
+    - { limit_type: 'soft',limit_item: 'nproc',  value: '65535' }
+    - { limit_type: 'hard',limit_item: 'nproc',  value: '65535' }
+
+- name: restart host
+  shell: sleep 1;/usr/sbin/reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: waiting for host to start
+  wait_for_connection:
+    delay: 10

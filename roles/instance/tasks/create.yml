@@ -1,0 +1,89 @@
+---
+- name: remove agents from known_hosts file
+  command: /usr/bin/ssh-keygen -R {{ hostvars[item].inventory_hostname }}
+  with_items:
+    - "{{ groups[group_names[0]] }}"
+  ignore_errors: true
+
+- name: merge label parameter
+  debug:
+    msg: >-
+      {% set index = 0 %}
+      {%- for key in label -%}
+        {%- set index = index + 1 -%}
+        {{ key }}={{ label[key] }}
+        {%- if not loop.last %}
+        ,
+        {%- endif -%}
+      {%- endfor -%}
+  register: lebel_parm
+
+- name: Creating instances by custom
+  block:
+    - name: creating
+      command:
+        "{{ gcloud_bin_path }} compute instances create {{ hostvars[item].inventory_hostname }}
+        --project {{ project }}
+        --zone {{ hostvars[item].zone }}
+        --image {{ image }}
+        --image-project {{ image_project }}
+        --machine-type {{ machine_type }}
+        --subnet {{ subnet }}
+        --private-network-ip {{ hostvars[item].internal_ip }}
+        --no-address
+        --scopes {{ scopes }}
+        --labels={{ lebel_parm.msg }}
+        --tags={{ tags | join(',') }}
+        --boot-disk-size {{ boot_disk_size }}
+        --boot-disk-type {{ boot_disk_type }}
+        --boot-disk-device-name {{ hostvars[item].inventory_hostname }} "
+      with_items:
+        - "{{ groups[group_names[0]] }}"
+      register: vm_instances_by_custom
+      async: 100
+      poll: 0
+
+    - name: wait for instance creation to complete
+      async_status: jid={{ item.ansible_job_id }}
+      register: instances_jobs
+      until: instances_jobs.finished
+      retries: 300
+      with_items: "{{ vm_instances_by_custom.results }}"
+
+- name: add disk labels
+  block:
+    - command: "{{ gcloud_bin_path }} compute disks add-labels {{ hostvars[item].inventory_hostname }}
+              --zone {{ hostvars[item].zone }}
+              --labels={{ lebel_parm.msg }}"
+      with_items:
+        - "{{ groups[group_names[0]] }}"
+      register: add_disk_label
+      async: 100
+      poll: 0
+
+    - name: wait for add disk label
+      async_status: jid={{ item.ansible_job_id }}
+      register: instances_jobs
+      until: instances_jobs.finished
+      retries: 300
+      with_items: "{{ add_disk_label.results }}"
+
+- name: Reserve static internal ip address
+  block:
+    - command:
+        "{{ gcloud_bin_path }} compute addresses create {{ item }}-internal
+        --region {{ region }}
+        --subnet {{ subnet }}
+        --addresses {{ hostvars[item]['internal_ip'] }}"
+      with_items:
+        - "{{ groups[group_names[0]] }}"
+      register: reserve_vm_ip
+      async: 100
+      poll: 0
+
+    - name: wait for ip vm reserve
+      async_status: jid={{ item.ansible_job_id }}
+      register: instances_jobs
+      until: instances_jobs.finished
+      retries: 300
+      with_items: "{{ reserve_vm_ip.results }}"

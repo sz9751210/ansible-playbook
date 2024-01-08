@@ -1,0 +1,11 @@
+---
+- name: setup enviroment
+  user:
+    name: prometheus
+- file:
+    path: /home/prometheus
+    mode: '0755'
+
+- name: install node_exporter
+  include: node.yml
+  when: enabled_node_exporter

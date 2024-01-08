@@ -1,0 +1,21 @@
+---
+## Setting Instance ##
+image: centos-7-v20220719
+image_project: centos-cloud
+label:
+  {{ key }}: {{ value}}
+subnet:  {{ subnet }} 
+tags:
+  - {{ tags }}
+machine_type: {{  machine_type}}
+boot_disk_size: {{ boot_disk_size }}
+boot_disk_type: {{ boot_disk_type }}
+attach_disk_size: {{ attach_disk_size }}
+attach_disk_type: {{ attach_disk_type }}
+mount_path: {{ mount_path }}
+scopes: {{ scopes }}
+
+#################
+# image指令：gcloud compute images list
+# disk資訊：https://cloud.google.com/compute/docs/disks
+#################

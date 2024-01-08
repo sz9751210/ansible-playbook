@@ -1,0 +1,26 @@
+---
+- name: copy node_exporter
+  copy:
+    src: "{{ playbook_dir }}/files/instance/node_exporter"
+    dest: /home/prometheus
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+- name:  copy exporter config
+  copy:
+    src: "{{ playbook_dir }}/files/instance/node_exporter/node_exporter.service"
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: start node_exporter
+  systemd:
+    name: node_exporter
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: check node_exporter status
+  shell: "curl -s 127.0.0.1:9100"
