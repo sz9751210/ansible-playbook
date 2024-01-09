@@ -3,11 +3,15 @@
 image: centos-7-v20220719
 image_project: centos-cloud
 label:
-  {{ key }}: {{ value}}
+{%- for key, value in labels.items() %}
+  {{ key }}: {{ value }}
+{%- endfor %}
 subnet:  {{ subnet }} 
 tags:
-  - {{ tags }}
-machine_type: {{  machine_type}}
+{%- for tag in tags %}
+  - {{ tag }}
+{%- endfor %}
+machine_type: {{ machine_type }}
 boot_disk_size: {{ boot_disk_size }}
 boot_disk_type: {{ boot_disk_type }}
 attach_disk_size: {{ attach_disk_size }}

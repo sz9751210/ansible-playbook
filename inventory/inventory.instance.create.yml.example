@@ -1,5 +1,0 @@
-[localhost]
-localhost internal_ip=127.0.0.1
-
-[general]
-#{{ hostname }} internal_ip={{ IP }} zone={{ zone }}

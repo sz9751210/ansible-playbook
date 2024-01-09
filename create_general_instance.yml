@@ -1,6 +1,6 @@
 ---
 - name: Create instances
-  hosts: creation
+  hosts: general
   gather_facts: no
   connection: local
   vars_files:
@@ -10,7 +10,7 @@
       run_once: true
 
 - name: Setup instances
-  hosts: creation
+  hosts: general
   become: yes
   become_user: root
   gather_facts: no
@@ -18,7 +18,7 @@
     - include_tasks: roles/instance/tasks/setup.yml
 
 - name: Install Monitor
-  hosts: creation
+  hosts: general
   become: yes
   become_user: root
   gather_facts: no
@@ -28,7 +28,7 @@
     - include_tasks: roles/monitor/tasks/main.yml
 
 - name: Install Google Ops Agent
-  hosts: creation
+  hosts: general
   become: yes
   become_user: root
   gather_facts: no

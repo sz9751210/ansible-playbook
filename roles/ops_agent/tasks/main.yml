@@ -7,4 +7,3 @@
 
 - name: Install Google Ops Agent
   command: bash /tmp/add-google-cloud-ops-agent-repo.sh --also-install
-

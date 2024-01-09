@@ -1,0 +1,7 @@
+[localhost]
+localhost internal_ip=127.0.0.1
+
+[{{ group }}]
+{% for host in hosts -%}
+{{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }}
+{% endfor -%}
