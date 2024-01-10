@@ -1,17 +1,30 @@
-import subprocess
+import pexpect
 import os
 
 def run_ansible_playbook(inventory_file, playbook_file):
-    # 設置環境變量
-    os.environ['ANSIBLE_HOST_KEY_CHECKING'] = 'False'
+    # 環境變量
+    env = os.environ.copy()
+    env['ANSIBLE_HOST_KEY_CHECKING'] = 'False'
 
-    # 構建命令，始終使用 verbose 模式
-    command = ['ansible-playbook', '-i', inventory_file, playbook_file, '-vvv']
+    # 構建命令
+    command = f"ansible-playbook -i {inventory_file} {playbook_file} -v"
 
-    # 執行命令
-    try:
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        print("STDOUT:\n", result.stdout)
-        print("STDERR:\n", result.stderr)
-    except subprocess.CalledProcessError as e:
-        print("錯誤:", e)
+    # 使用 pexpect.spawn 執行命令，並傳入環境變量
+    child = pexpect.spawn(command, encoding='utf-8', env=env, timeout=None)
+
+    # 持續讀取輸出直到進程結束
+    while True:
+        try:
+            line = child.readline()
+            if not line:
+                break
+            print(line, end='')
+        except pexpect.EOF:
+            break
+
+    # 等待子進程結束
+    child.wait()
+
+    # 確認進程是否成功完成
+    if child.exitstatus != 0:
+        print(f"Ansible playbook 執行失敗，返回碼: {child.exitstatus}")
