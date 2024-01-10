@@ -1,0 +1,37 @@
+---
+  - name: Remove instances
+    block:
+      - name: deleting
+        command: "{{ gcloud_bin_path }} compute instances delete {{ hostvars[item].inventory_hostname }}
+                  --project {{ project }}
+                  --zone {{ hostvars[item].zone }}"
+        with_items:
+          - "{{ groups[group_names[0]] }}"
+        register: vm_instances_by_custom
+        async: 100
+        poll: 0
+
+      - name: wait for instance remove to complete
+        async_status: jid={{ item.ansible_job_id }}
+        register: instances_jobs
+        until: instances_jobs.finished
+        retries: 300
+        with_items: "{{ vm_instances_by_custom.results }}"
+
+  - name: Release static internal ip address
+    block:
+      - command: "{{ gcloud_bin_path }} compute addresses delete {{ item }}-internal
+                  --region {{ region }}
+                  --project {{ project }}"
+        with_items:
+          - "{{ groups[group_names[0]] }}"
+        register: release_vm_ip
+        async: 100
+        poll: 0
+
+      - name: wait for ip release
+        async_status: jid={{ item.ansible_job_id }}
+        register: instances_jobs
+        until: instances_jobs.finished
+        retries: 300
+        with_items: "{{ release_vm_ip.results }}"
