@@ -1,7 +1,16 @@
-.PHONY: up-general up-gcs
+.PHONY: help up-% list-scripts
 
-up-general:
-	python3 gen_general.py
+PYTHON := python3
+SCRIPT_PREFIX := gen_
 
-up-gcs:
-	python3 gen_gcs.py
+help:
+	@echo "Available commands:"
+	@echo "  up-<script>: Run the gen_<script>.py script"
+	@echo "  list-scripts: List all available up-<script> commands"
+
+up-%:
+	@$(PYTHON) $(SCRIPT_PREFIX)$*.py || echo "Script $(SCRIPT_PREFIX)$*.py does not exist."
+
+list-scripts:
+	@echo "Available up-<script> commands:"
+	@sh -c "ls $(SCRIPT_PREFIX)*.py | sed 's/$(SCRIPT_PREFIX)\(.*\)\.py/up-\1/'"
