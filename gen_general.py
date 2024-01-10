@@ -1,15 +1,20 @@
 from package.generate_conf import setup_configurations, get_inventory_path
 from package.execute_command import run_ansible_playbook
 
+default_dir = 'playbook'
+project_id = 'project-id'
+region = 'asia-east1'
+zone = 'asia-east1-b'
+
 group_vars = {
-    'project_id': 'project-id',
-    'region': 'asia-east1',
+    'project_id': project_id,
+    'region': region,
 }
 
 inventory_vars = {
     'group': 'general',
     'hosts': [
-    {"hostname": "host2", "IP": "10.128.0.22", "zone": "asia-east1-b"},
+    {"hostname": "host2", "IP": "10.128.0.22", "zone": zone},
     ]
 }
 
@@ -25,14 +30,19 @@ instance_vars = {
     'scopes': 'default'
 }
 
+default_dir = 'playbook'
+
 configurations = {
-    'group_vars': (group_vars,     'group_vars/all/env.j2',           'group_vars/all/env.yml'),
+    'group_vars': (group_vars,     'group_vars/env.j2',           'group_vars/env.yml'),
     'inventory' : (inventory_vars, 'inventory/inventory.instance.j2',  'inventory/inventory.instance.yml'),
     'instance'  : (instance_vars,  'vars/instance/instance_var.j2',   'vars/instance/instance_var.yml')
 }
 
+for key, (content, template_path, output_path) in configurations.items():
+    configurations[key] = (content, f"{default_dir}/{template_path}", f"{default_dir}/{output_path}")
+
 setup_configurations(configurations)
 inventory_path = get_inventory_path(configurations)
-playbook_path = 'create_general_instance.yml'
+playbook_path = 'playbook/create_general_instance.yml'
 
 run_ansible_playbook(inventory_path, playbook_path)
