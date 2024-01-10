@@ -2,15 +2,28 @@
 
 PYTHON := python3
 SCRIPT_PREFIX := gen_
+PLAYBOOK_DIR := playbook
+UP_PLAYBOOK := gce gcs
+DOWN_PLAYBOOK := gce
 
 help:
 	@echo "Available commands:"
 	@echo "  up-<script>: Run the gen_<script>.py script"
 	@echo "  list-scripts: List all available up-<script> commands"
-
+	@echo "  list-playbooks: List all available playbooks"
+	@echo "Allowed up services are: $(UP_PLAYBOOK)"
+	@echo "Allowed down services are: $(DOWN_PLAYBOOK)"
 up-%:
-	@$(PYTHON) $(SCRIPT_PREFIX)$*.py || echo "Script $(SCRIPT_PREFIX)$*.py does not exist."
+	@$(PYTHON) $(SCRIPT_PREFIX)$*.py $(PLAYBOOK_DIR)/create_$*.yml|| echo "Script $(SCRIPT_PREFIX)$*.py does not exist."
+
+down-%:
+	@$(PYTHON) $(SCRIPT_PREFIX)$*.py $(PLAYBOOK_DIR)/delete_$*.yml|| echo "Script $(SCRIPT_PREFIX)$*.py does not exist."
 
 list-scripts:
 	@echo "Available up-<script> commands:"
 	@sh -c "ls $(SCRIPT_PREFIX)*.py | sed 's/$(SCRIPT_PREFIX)\(.*\)\.py/up-\1/'"
+
+list-playbooks:
+	@echo "Available playbook identifiers:"
+	@find $(PLAYBOOK_DIR) -name 'create_*.yml' | sed -e 's|.*/\(.*\)\.yml|\1|'
+	@find $(PLAYBOOK_DIR) -name 'delete_*.yml' | sed -e 's|.*/\(.*\)\.yml|\1|'

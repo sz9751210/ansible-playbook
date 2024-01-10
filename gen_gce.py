@@ -1,6 +1,12 @@
 from package.generate_conf import setup_configurations, get_inventory_path
 from package.execute_command import run_ansible_playbook
+import sys
 
+if len(sys.argv) != 2:
+    print('didn\'t get playbook path')
+    sys.exit(1)
+
+playbook_path = sys.argv[1]
 default_dir = 'playbook'
 project_id = 'project-id'
 region = 'asia-east1'
@@ -11,7 +17,7 @@ group_vars = {
 }
 
 inventory_vars = {
-    'group': 'general',
+    'group': 'gce',
     'hosts': [
     {"hostname": "host2", "IP": "10.128.0.22", "zone": "asia-east1-b"},
     ]
@@ -33,8 +39,6 @@ monitor_vars = {
     'enabled_node_exporter': 'true',
 }
 
-default_dir = 'playbook'
-
 configurations = {
     'group_vars': (group_vars,     'group_vars/all/env.j2',                'group_vars/all/env.yml'),
     'inventory' : (inventory_vars, 'inventory/inventory.instance.j2',      'inventory/inventory.instance.yml'),
@@ -47,6 +51,5 @@ for key, (content, template_path, output_path) in configurations.items():
 
 setup_configurations(configurations)
 inventory_path = get_inventory_path(configurations)
-playbook_path = f'{default_dir}/create_general_instance.yml'
 
 run_ansible_playbook(inventory_path, playbook_path)
