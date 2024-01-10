@@ -29,12 +29,17 @@ instance_vars = {
     'scopes': 'default'
 }
 
+monitor_vars = {
+    'enabled_node_exporter': 'true',
+}
+
 default_dir = 'playbook'
 
 configurations = {
-    'group_vars': (group_vars,     'group_vars/env.j2',                'group_vars/env.yml'),
-    'inventory' : (inventory_vars, 'inventory/inventory.instance.j2',  'inventory/inventory.instance.yml'),
-    'instance'  : (instance_vars,  'vars/instance/instance_var.j2',    'vars/instance/instance_var.yml')
+    'group_vars': (group_vars,     'group_vars/all/env.j2',                'group_vars/all/env.yml'),
+    'inventory' : (inventory_vars, 'inventory/inventory.instance.j2',      'inventory/inventory.instance.yml'),
+    'instance'  : (instance_vars,  'vars/instance/instance_var.j2',        'vars/instance/vars.yml'),
+    'monitor'   : (monitor_vars,   'vars/monitor/monitor_var.j2',          'vars/monitor/vars.yml')
 }
 
 for key, (content, template_path, output_path) in configurations.items():

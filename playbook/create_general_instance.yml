@@ -4,7 +4,7 @@
   gather_facts: no
   connection: local
   vars_files:
-    - vars/instance/instance_var.yml
+    - vars/instance/vars.yml
   tasks:
     - include_tasks: roles/instance/tasks/create.yml
       run_once: true
@@ -23,7 +23,7 @@
   become_user: root
   gather_facts: no
   vars_files:
-    - vars/monitor/monitor_var.yml
+    - vars/monitor/vars.yml
   tasks:
     - include_tasks: roles/monitor/tasks/main.yml
 
