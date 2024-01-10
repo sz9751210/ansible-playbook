@@ -1,4 +1,7 @@
-.PHONY: up-general
+.PHONY: up-general up-gcs
 
 up-general:
-	ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/inventory.instance.create.yml create_general_instance.yaml -v
+	python3 gen_general.py
+
+up-gcs:
+	python3 gen_gcs.py
