@@ -1,0 +1,22 @@
+---
+- name: Creating GCS
+  block:
+    - name: creating
+      command:
+        "{{ gcloud_bin_path }} storage buckets create gs://{{ hostvars[item].inventory_hostname }}
+        --project {{ project }}
+        --location {{ hostvars[item].location }}
+        --default-storage-class {{ storage_class }}
+        --uniform-bucket-level-access"
+      with_items:
+        - "{{ groups[group_names[0]] }}"
+      register: gcs_by_custom
+      async: 100
+      poll: 0
+
+    - name: wait for gcs creation to complete
+      async_status: jid={{ item.ansible_job_id }}
+      register: gcs_jobs
+      until: gcs_jobs.finished
+      retries: 300
+      with_items: "{{ gcs_by_custom.results }}"

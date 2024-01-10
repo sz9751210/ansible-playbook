@@ -1,0 +1,10 @@
+---
+- name: Create gcs
+  hosts: gcs
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/gcs/vars.yml
+  tasks:
+    - include_tasks: roles/gcs/tasks/create.yml
+      run_once: true
