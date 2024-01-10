@@ -4,7 +4,6 @@ from package.execute_command import run_ansible_playbook
 default_dir = 'playbook'
 project_id = 'project-id'
 region = 'asia-east1'
-zone = 'asia-east1-b'
 
 group_vars = {
     'project_id': project_id,
@@ -14,7 +13,7 @@ group_vars = {
 inventory_vars = {
     'group': 'general',
     'hosts': [
-    {"hostname": "host2", "IP": "10.128.0.22", "zone": zone},
+    {"hostname": "host2", "IP": "10.128.0.22", "zone": "asia-east1-b"},
     ]
 }
 
@@ -43,6 +42,6 @@ for key, (content, template_path, output_path) in configurations.items():
 
 setup_configurations(configurations)
 inventory_path = get_inventory_path(configurations)
-playbook_path = 'playbook/create_general_instance.yml'
+playbook_path = f'{default_dir}/create_general_instance.yml'
 
 run_ansible_playbook(inventory_path, playbook_path)
