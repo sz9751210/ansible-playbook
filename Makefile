@@ -8,11 +8,11 @@ DOWN_PLAYBOOK := gce
 
 help:
 	@echo "Available commands:"
-	@echo "  up-<script>: Run the gen_<script>.py script"
-	@echo "  list-scripts: List all available up-<script> commands"
+	@echo "  up/down-<script>: Run the gen_<script>.py script"
+	@echo "  list-scripts: List all available up/down-<script> commands"
 	@echo "  list-playbooks: List all available playbooks"
-	@echo "Allowed up services are: $(UP_PLAYBOOK)"
-	@echo "Allowed down services are: $(DOWN_PLAYBOOK)"
+	@echo "Allowed up scripts are: $(UP_PLAYBOOK)"
+	@echo "Allowed down scripts are: $(DOWN_PLAYBOOK)"
 up-%:
 	@$(PYTHON) $(SCRIPT_PREFIX)$*.py $(PLAYBOOK_DIR)/create_$*.yml|| echo "Script $(SCRIPT_PREFIX)$*.py does not exist."
 
