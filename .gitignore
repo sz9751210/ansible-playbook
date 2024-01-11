@@ -1,5 +1,5 @@
 env.yml
-inventory.*.yml
+inventory.yml
 instance_var.yml
 __pycache__
 *.pyc

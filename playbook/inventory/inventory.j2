@@ -8,8 +8,14 @@ localhost internal_ip=127.0.0.1
 {% endfor -%}
 
 {% elif group == 'server' %}
-[server]
+[{{ group }}]
 {% for host in hosts -%}
 {{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }} server_type={{ host.server_type }}
+{% endfor -%}
+
+{% elif group == 'gcs' %}
+[{{ group }}]
+{% for host in hosts -%}
+{{ host.hostname }} location={{ host.location }}
 {% endfor -%}
 {% endif %}
