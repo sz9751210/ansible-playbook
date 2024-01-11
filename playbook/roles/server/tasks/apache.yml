@@ -1,0 +1,17 @@
+---
+- name: Install httpd
+  yum: 
+    name: httpd
+    state: present
+
+- name: Start httpd
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check httpd status
+  shell: "systemctl status httpd | grep -c 'active (running)'"
+  register: httpd_status
+  until: httpd_status.stdout.find("1") != -1

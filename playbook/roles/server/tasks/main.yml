@@ -1,0 +1,8 @@
+---
+- name: Install Nginx
+  include: nginx.yml
+  when: server_type == 'nginx'
+
+- name: Install Apache
+  include: apache.yml
+  when: server_type == 'apache'

@@ -1,0 +1,17 @@
+---
+- name: Install Nginx
+  yum: 
+    name: nginx
+    state: present
+
+- name: Start Nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check nginx status
+  shell: "systemctl status nginx | grep -c 'active (running)'"
+  register: nginx_status
+  until: nginx_status.stdout.find("1") != -1

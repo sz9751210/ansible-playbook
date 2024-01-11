@@ -1,7 +1,15 @@
 [localhost]
 localhost internal_ip=127.0.0.1
 
+{% if group in ['gce', 'docker'] %}
 [{{ group }}]
 {% for host in hosts -%}
 {{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }}
 {% endfor -%}
+
+{% elif group == 'server' %}
+[server]
+{% for host in hosts -%}
+{{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }} server_type={{ host.server_type }}
+{% endfor -%}
+{% endif %}
