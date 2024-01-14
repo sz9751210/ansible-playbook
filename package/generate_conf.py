@@ -23,7 +23,6 @@ def setup_configurations(configs, default_dir = 'playbook'):
         full_template_path = os.path.join(default_dir, template_path)
         full_output_path = os.path.join(default_dir, output_path)
         configs[key] = (content, full_template_path, full_output_path)
-        print(configs[key])
         try:
             generate_config(content, full_template_path, full_output_path)
             print(f"配置文件 {output_path} 生成成功。")
