@@ -1,0 +1,72 @@
+curl -s -k -u elastic:elastic -XPUT -H "content-type:application/json"  'https://127.0.0.1:9200/_ilm/policy/elk' -d '{
+  "policy": {
+    "phases": {
+        "warm" : {
+          "min_age" : "7d",
+          "actions" : {
+            "allocate" : {
+              "number_of_replicas" : 0,
+              "include" : { },
+              "exclude" : { },
+              "require" : { }
+            },
+            "forcemerge" : {
+              "max_num_segments" : 1
+            },
+            "readonly" : { },
+            "set_priority" : {
+              "priority" : 50
+            }
+          }
+        },
+      "hot": {
+        "actions": {
+          "rollover": {
+            "max_primary_shard_size": "10g", 
+            "max_age": "7d"
+          },
+          "set_priority" : {
+            "priority": 100
+          },
+            "shrink" : {
+              "number_of_shards" : 1
+          }
+        }
+      },
+      "delete": {
+        "min_age": "30d",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}'
+
+curl -s -k -u elastic:elastic -XPUT -H "content-type:application/json"  'https://127.0.0.1:9200/_index_template/elk.access-template'  -d '{
+  "index_patterns": ["elk.access-*"], 
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1,
+      "refresh_interval" : "5s",
+      "index.lifecycle.name": "elk",
+      "index.lifecycle.rollover_alias": "elk.access",
+      "index.routing.allocation.include._tier_preference": "data_hot"
+    }
+  }
+}'
+
+curl -s -k -u elastic:elastic -XPUT -H "content-type:application/json"  'https://127.0.0.1:9200/_index_template/dead-letter-queue-template'  -d '{
+  "index_patterns": ["dead-letter-queue-*"], 
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1,
+      "refresh_interval" : "5s",
+      "index.lifecycle.name": "elk",
+      "index.lifecycle.rollover_alias": "dead-letter-queue",
+      "index.routing.allocation.include._tier_preference": "data_hot"
+    }
+  }
+}'

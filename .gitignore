@@ -4,3 +4,6 @@ instance_var.yml
 __pycache__
 *.pyc
 vars.yml
+token
+*.p12
+*.crt

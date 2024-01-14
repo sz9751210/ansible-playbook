@@ -1,0 +1,72 @@
+---
+- name: Copy elasticsearch cert to local
+  fetch: 
+    src: /etc/elasticsearch/certs/{{ item.name }}
+    dest: "{{ playbook_dir }}/files/elasticsearch/certs/{{ item.name }}"
+    mode: '0660'
+    flat: yes
+  with_items: 
+    - { name: http_ca.crt }
+    - { name: http.p12 }
+    - { name: transport.p12 }
+
+- name: Copy config
+  template: 
+    src: "{{ playbook_dir }}/roles/elasticsearch/templates/elasticsearch.yml.j2"
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+    owner: root
+    group: elasticsearch
+    mode: 0660
+
+- name: Start elasticsearch
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Install pexpect
+  pip:
+    name: pexpect
+
+- name: Change elasticsearch password
+  expect:
+      command: /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i
+      responses:
+        'Please confirm that you would like to continue \[y\/N\]': "y"
+        'Enter password for \[elastic\]\:': "elastic"
+        'Re\-enter password for \[elastic\]\:': "elastic"
+
+- name: Check elastic status
+  shell: "curl -s -k -u elastic:elastic https://localhost:9200/ | grep -c Search"
+  register: host_status
+  until: host_status.stdout.find("1") != -1
+
+- name: Change kibana password
+  expect:
+      command: /usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system -i
+      responses:
+        'Please confirm that you would like to continue \[y\/N\]': "y"
+        'Enter password for \[kibana_system\]\:': "kibana_system"
+        'Re\-enter password for \[kibana_system\]\:': "kibana_system"
+
+- name: Get token
+  shell: |
+    declare token
+    token=$(/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node)
+    echo token: $token > /tmp/token
+
+- name: Transfer token from master to local
+  fetch: src=/tmp/token dest={{ playbook_dir }}/vars/elasticsearch/token flat=yes
+
+- name: Copy elastic api.sh
+  copy: 
+    src: "{{ playbook_dir }}/files/elasticsearch/api.sh.{{ ilm_policy }}"
+    dest: /tmp/api.sh
+    owner: root
+    group: root
+    mode: '0777'
+
+- name: Run elastic api.sh
+  shell: |
+    sh /tmp/api.sh

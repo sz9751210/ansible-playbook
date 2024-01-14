@@ -1,0 +1,28 @@
+---
+- name: Add to cluster
+  shell: "echo y | /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token {{ token }}"
+
+- name: Check cluster status
+  shell: " grep -c {{ master_ip }} /etc/elasticsearch/elasticsearch.yml"
+  register: host_status
+  until: host_status.stdout.find("1") != -1
+
+- name: Copy config
+  template: 
+    src: "{{ playbook_dir }}/roles/elasticsearch/templates/elasticsearch.yml.j2"
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+    owner: root
+    group: elasticsearch
+    mode: 0660
+
+- name: Start elasticsearch
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check elastic status
+  shell: "curl -s -k -u elastic:elastic https://localhost:9200/ | grep -c Search"
+  register: host_status
+  until: host_status.stdout.find("1") != -1

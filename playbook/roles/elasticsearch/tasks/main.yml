@@ -1,0 +1,15 @@
+---
+- name: Install elastic
+  include: install_elastic.yml
+
+- name: Set up elastic init master
+  include: setup_elastic_master.yml
+  when:
+    - groups.get('elastic_master', []) | length > 0
+    - inventory_hostname in groups["elastic_master"]
+
+- name: Set up elastic slave
+  include: setup_elastic_slave.yml  
+  when:
+    - groups.get('elastic_slave', []) | length > 0
+    - inventory_hostname in groups["elastic_slave"]

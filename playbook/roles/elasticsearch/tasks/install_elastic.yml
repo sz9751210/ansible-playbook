@@ -1,0 +1,19 @@
+---
+- name: Import the Elasticsearch GPG Key.
+  rpm_key: 
+    state: present 
+    key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+
+- name: Copy elasticsearch.repo
+  copy: 
+    src: "{{ playbook_dir }}/files/elasticsearch/elasticsearch.repo"
+    dest: /etc/yum.repos.d/elasticsearch.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install elasticsearch
+  yum: name=elasticsearch state=latest update_cache=yes enablerepo=elasticsearch
+
+- name: Backup elasticsearch.yml
+  command: cp /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.backup
