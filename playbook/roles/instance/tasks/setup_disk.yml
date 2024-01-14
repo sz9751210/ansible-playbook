@@ -1,0 +1,31 @@
+---
+- name: Format disk
+  shell: |
+    declare device
+    device=$(lsblk -o NAME,SIZE,UUID | grep {{ attach_disk_size }} | tail -1 | cut -d ' ' -f 1)
+    echo y | mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/$device
+    mkdir -p {{ mount_path }}
+    mount -o discard,defaults /dev/$device {{ mount_path }}
+    chmod a+w {{ mount_path }}
+    cp /etc/fstab /etc/fstab.backup
+    declare uuid
+    uuid=$(blkid -s UUID /dev/$device | cut -d '"' -f 2)
+    echo "UUID=$uuid {{ mount_path }} ext4 discard,defaults,nofail 0 2" >> /etc/fstab
+
+- name: Restart host
+  shell: sleep 1;/usr/sbin/reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: Waiting for host to start
+  wait_for_connection:
+    delay: 10
+
+- name: Check disk status
+  shell: |
+    declare device
+    device=$(lsblk -o NAME,SIZE,UUID | grep {{ attach_disk_size }} | tail -1 | cut -d ' ' -f 1)
+    lsblk -o NAME,MOUNTPOINT | grep $device | grep -o {{ mount_path }}
+  register: disk_status
+  until: disk_status.stdout.find(mount_path|string) != -1

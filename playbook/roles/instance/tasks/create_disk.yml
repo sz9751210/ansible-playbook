@@ -1,0 +1,55 @@
+---
+  - name: Merge label parameter
+    debug:
+      msg: >-
+        {% set index = 0 %}
+        {%- for key in label -%}
+          {%- set index = index + 1 -%}
+          {{ key }}={{ label[key] }}
+          {%- if index < (label|length) -%}
+          ,
+          {%- endif -%}
+        {%- endfor -%}
+    register: lebel_parm 
+
+  - name: Creating General Disk
+    block:
+      - name: creating disk
+        command: "{{ gcloud_bin_path }} compute disks create {{ hostvars[item].inventory_hostname }}-data
+                  --project {{ project }}
+                  --zone {{ hostvars[item].zone }}
+                  --labels={{ lebel_parm.msg }}
+                  --size {{ attach_disk_size }}
+                  --type {{ attach_disk_type }} "
+        with_items:
+          - "{{ groups[group_names[0]] }}"
+        register: vm_disk_by_custom
+        async: 100
+        poll: 0
+
+      - name: Wait for disk creation to complete
+        async_status: jid={{ item.ansible_job_id }}
+        register: disk_jobs
+        until: disk_jobs.finished
+        retries: 300
+        with_items: "{{ vm_disk_by_custom.results }}"
+
+  - name: Mounting Disk
+    block:
+      - name: mounting disk
+        command: "{{ gcloud_bin_path }} compute instances attach-disk {{ hostvars[item].inventory_hostname }}
+                  --disk {{ hostvars[item].inventory_hostname }}-data
+                  --project {{ project }}
+                  --zone {{ hostvars[item].zone }}"
+        with_items:
+          - "{{ groups[group_names[0]] }}"
+        register: vm_disk_by_custom
+        async: 100
+        poll: 0
+
+      - name: wait for disk mounting complete
+        async_status: jid={{ item.ansible_job_id }}
+        register: disk_jobs
+        until: disk_jobs.finished
+        retries: 300
+        with_items: "{{ vm_disk_by_custom.results }}"
