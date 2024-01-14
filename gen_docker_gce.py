@@ -53,9 +53,6 @@ configurations = {
     'monitor'    : (monitor_vars,   'vars/monitor/monitor_var.j2',   'vars/monitor/vars.yml')
 }
 
-for key, (content, template_path, output_path) in configurations.items():
-    configurations[key] = (content, f"{default_dir}/{template_path}", f"{default_dir}/{output_path}")
-
 setup_configurations(configurations)
 inventory_path = get_inventory_path(configurations)
 

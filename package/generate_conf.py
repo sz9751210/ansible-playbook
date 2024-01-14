@@ -1,3 +1,4 @@
+import os
 from jinja2 import Template
 
 
@@ -17,10 +18,14 @@ def generate_config(instance_vars, template_path, output_path):
 
     print(f"文件已保存到 {output_path}")
 
-def setup_configurations(configs):
-    for key, (vars, template_path, output_path) in configs.items():
+def setup_configurations(configs, default_dir = 'playbook'):
+    for key, (content, template_path, output_path) in configs.items():        
+        full_template_path = os.path.join(default_dir, template_path)
+        full_output_path = os.path.join(default_dir, output_path)
+        configs[key] = (content, full_template_path, full_output_path)
+        print(configs[key])
         try:
-            generate_config(vars, template_path, output_path)
+            generate_config(content, full_template_path, full_output_path)
             print(f"配置文件 {output_path} 生成成功。")
         except Exception as e:
             print(f"生成配置文件時出錯: {e}")

@@ -33,10 +33,7 @@ configurations = {
     'bucket'    : (bucket_vars,    'vars/gcs/gcs_var.j2',    'vars/gcs/vars.yml')
 }
 
-for key, (content, template_path, output_path) in configurations.items():
-    configurations[key] = (content, f"{default_dir}/{template_path}", f"{default_dir}/{output_path}")
-
 setup_configurations(configurations)
 inventory_path = get_inventory_path(configurations)
 
-# run_ansible_playbook(inventory_path, playbook_path)
+run_ansible_playbook(inventory_path, playbook_path)
