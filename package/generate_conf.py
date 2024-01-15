@@ -1,5 +1,7 @@
 import os
 from jinja2 import Template
+import yaml
+import configparser
 
 
 def generate_config(instance_vars, template_path, output_path):
@@ -31,3 +33,39 @@ def setup_configurations(configs, default_dir = 'playbook'):
 
 def get_inventory_path(configs):
     return configs['inventory'][2]
+
+def load_yaml_file(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return yaml.load(file, Loader=yaml.FullLoader)
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return {}
+    except yaml.YAMLError as e:
+        print(f"Error loading YAML file '{file_path}': {e}")
+        return {}
+
+def read_ini_file(file_path):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    return config
+
+def merge_inventory_files(file_paths, merged_file_path):
+    merged_config = configparser.ConfigParser()
+    for file in file_paths:
+        merged_config.read_dict(file)
+
+    with open(merged_file_path, 'w') as configfile:
+        merged_config.write(configfile)
+
+def merge_and_delete_ini_files(ini_files, merged_file_path):
+    # Read and store the configurations in a list
+    config_list = [read_ini_file(file) for file in ini_files]
+
+    # Merge the configurations into a single INI file
+    merge_inventory_files(config_list, merged_file_path)
+
+    # Delete the original INI files except for the merged file
+    for file in ini_files:
+        if file != merged_file_path:
+            os.remove(file)

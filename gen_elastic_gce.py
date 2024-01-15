@@ -1,4 +1,4 @@
-from package.generate_conf import setup_configurations, get_inventory_path
+from package.generate_conf import setup_configurations, get_inventory_path, merge_and_delete_ini_files
 from package.execute_command import run_ansible_playbook
 
 default_dir   = 'playbook'
@@ -53,30 +53,22 @@ monitor_vars = {
     'enabled_node_exporter': 'true',
 }
 
-master_configurations = {
-    'group_vars'    : (group_vars,            'group_vars/all/env.j2',                   'group_vars/all/env.yml'),
-    'inventory'     : (master_inventory_vars, 'inventory/inventory.j2',                  'inventory/inventory.yml'),
-    'elasticsearch' : (elasticsearch_vars,    'vars/elasticsearch/elasticsearch_var.j2', 'vars/elasticsearch/vars.yml'),
-    'instance'      : (instance_vars,         'vars/instance/instance_var.j2',           'vars/instance/vars.yml'),
-    'monitor'       : (monitor_vars,          'vars/monitor/monitor_var.j2',             'vars/monitor/vars.yml')
+configurations = {
+    'group_vars'       : (group_vars,            'group_vars/all/env.j2',                   'group_vars/all/env.yml'),
+    'master_inventory' : (master_inventory_vars, 'inventory/inventory.j2',                  'inventory/master_inventory.yml'),
+    'slave_inventory'  : (slave_inventory_vars,  'inventory/inventory.j2',                  'inventory/slave_inventory.yml'),
+    'elasticsearch'    : (elasticsearch_vars,    'vars/elasticsearch/elasticsearch_var.j2', 'vars/elasticsearch/vars.yml'),
+    'instance'         : (instance_vars,         'vars/instance/instance_var.j2',           'vars/instance/vars.yml'),
+    'monitor'          : (monitor_vars,          'vars/monitor/monitor_var.j2',             'vars/monitor/vars.yml')
 }
 
-slave_configurations = {
-    'group_vars'    : (group_vars,           'group_vars/all/env.j2',                   'group_vars/all/env.yml'),
-    'inventory'     : (slave_inventory_vars, 'inventory/inventory.j2',                  'inventory/inventory.yml'),
-    'elasticsearch' : (elasticsearch_vars,   'vars/elasticsearch/elasticsearch_var.j2', 'vars/elasticsearch/vars.yml'),
-    'instance'      : (instance_vars,        'vars/instance/instance_var.j2',           'vars/instance/vars.yml'),
-    'monitor'       : (monitor_vars,         'vars/monitor/monitor_var.j2',             'vars/monitor/vars.yml')
-}
+setup_configurations(configurations)
+inventory_list = ['master_inventory','slave_inventory']
+file_list = [configurations[config][2] for config in inventory_list]
+inventory_path = f'{default_dir}/inventory/inventory.yml'
+merge_and_delete_ini_files(file_list, inventory_path)
 
-setup_configurations(master_configurations)
-master_inventory_path = get_inventory_path(master_configurations)
 master_playbook_path = f'{default_dir}/create_elastic_master_gce.yml'
-
-run_ansible_playbook(master_inventory_path, master_playbook_path)
-
-setup_configurations(slave_configurations)
-slave_inventory_path = get_inventory_path(slave_configurations)
 slave_playbook_path = f'{default_dir}/create_elastic_slave_gce.yml'
-
-run_ansible_playbook(slave_inventory_path, slave_playbook_path)
+run_ansible_playbook(inventory_path, master_playbook_path)
+run_ansible_playbook(inventory_path, slave_playbook_path)
