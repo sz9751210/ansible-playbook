@@ -41,10 +41,10 @@ monitor_vars = {
 }
 
 configurations = {
-    'group_vars': (group_vars,     'group_vars/all/env.j2',                'group_vars/all/env.yml'),
-    'inventory' : (inventory_vars, 'inventory/inventory.instance.j2',      'inventory/inventory.instance.yml'),
-    'instance'  : (instance_vars,  'vars/instance/instance_var.j2',        'vars/instance/vars.yml'),
-    'monitor'   : (monitor_vars,   'vars/monitor/monitor_var.j2',          'vars/monitor/vars.yml')
+    'group_vars': (group_vars,     'group_vars/all/env.j2',         'group_vars/all/env.yml'),
+    'inventory' : (inventory_vars, 'inventory/inventory.j2',        'inventory/inventory.yml'),
+    'instance'  : (instance_vars,  'vars/instance/instance_var.j2', 'vars/instance/vars.yml'),
+    'monitor'   : (monitor_vars,   'vars/monitor/monitor_var.j2',   'vars/monitor/vars.yml')
 }
 
 setup_configurations(configurations)
