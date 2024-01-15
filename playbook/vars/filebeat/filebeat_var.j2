@@ -1,0 +1,6 @@
+---
+log_host: {{ log_host }}
+log_path:
+{%- for path in log_path %}
+  - {{ path }}
+{%- endfor %}

@@ -1,0 +1,39 @@
+---
+- name: Import the filebeat GPG Key.
+  rpm_key: 
+    state: present 
+    key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+
+- name: Copy filebeat.repo
+  copy: 
+    src: "{{ playbook_dir }}/files/filebeat/filebeat.repo"
+    dest: /etc/yum.repos.d/filebeat.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install filebeat
+  yum: name=filebeat state=latest
+
+- name: Backup filebeat.yml
+  command: cp /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.backup
+
+- name: Copy config
+  template: 
+    src: "{{ playbook_dir }}/roles/filebeat/templates/filebeat.yml.j2"
+    dest: "/etc/filebeat/filebeat.yml"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Start filebeat
+  systemd:
+    name: filebeat
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check filebeat status
+  shell: "systemctl status filebeat | grep -c 'active (running)'"
+  register: filebeat_status
+  until: filebeat_status.stdout.find("1") != -1
