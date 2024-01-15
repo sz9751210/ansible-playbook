@@ -1,8 +1,8 @@
 import os
-from jinja2 import Template
+import re
 import yaml
 import configparser
-
+from jinja2 import Template
 
 def generate_config(instance_vars, template_path, output_path):
 
@@ -64,8 +64,17 @@ def merge_and_delete_ini_files(ini_files, merged_file_path):
 
     # Merge the configurations into a single INI file
     merge_inventory_files(config_list, merged_file_path)
-
+    remove_spaces_around_equals(merged_file_path)
     # Delete the original INI files except for the merged file
     for file in ini_files:
         if file != merged_file_path:
             os.remove(file)
+
+def remove_spaces_around_equals(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    with open(file_path, 'w') as file:
+        for line in lines:
+            line = re.sub(r'\s*=\s*', '=', line)  # 移除等號前後的空格
+            file.write(line)
