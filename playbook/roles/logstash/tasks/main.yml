@@ -1,0 +1,74 @@
+---
+- name: Import the logstash GPG Key.
+  rpm_key: 
+    state: present 
+    key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+
+- name: Copy logstash.repo
+  copy: 
+    src: "{{ playbook_dir }}/files/logstash/logstash.repo"
+    dest: /etc/yum.repos.d/logstash.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install logstash
+  yum: name=logstash state=latest
+
+- name: Backup logstash.config
+  shell: |
+    cp /etc/logstash/logstash.yml /etc/logstash/logstash.yml.backup 
+    cp /etc/logstash/pipelines.yml /etc/logstash/pipelines.yml.backup
+
+- name: Copy logstash.config
+  copy: 
+    src: "{{ playbook_dir }}/files/logstash/"
+    dest: /etc/logstash
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Merge host parameter
+  debug:
+    msg: >-
+      {% set index = 0 %}
+      {%- for host in groups['elastic_slave'] -%}
+        {%- if loop.first %}"{{ master_ip }}:{{ elastic_port }}", {% endif -%}
+        {%- set index = index + 1 -%}
+        "{{ hostvars[host]['internal_ip'] }}:{{ elastic_port }}"
+        {%- if not loop.last %}, {% endif -%}
+      {%- endfor -%}
+  register: host_parm 
+
+- name: Setting logstash pipeline
+  shell: |
+    find /etc/logstash/pipelines -type f -name "*.conf" -print0 | xargs -0 sed -i  's/hosts.*/hosts => [{{ host_parm.msg  }}]/g'
+    find /etc/logstash/pipelines -type f -name "*.conf" -print0 | xargs -0 sed -i  's/ilm_policy.*/ilm_policy => "{{ ilm_policy }}"/g'
+
+- name: Create logstash certs directory
+  file:
+    path: "/etc/logstash/certs"
+    state: directory
+    mode: '0755'
+
+- name: Copy elasticsearch cert
+  copy: 
+    src: "{{ playbook_dir }}/files/elasticsearch/certs/{{ item.name }}"
+    dest: /etc/logstash/certs/{{ item.name }}
+    owner: root
+    group: logstash
+    mode: '0660'
+  with_items:
+    - { name: http_ca.crt }
+
+- name: Start logstash
+  systemd:
+    name: logstash
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check logstash status
+  shell: "systemctl status logstash | grep -c 'active (running)'"
+  register: logstash_status
+  until: logstash_status.stdout.find("1") != -1

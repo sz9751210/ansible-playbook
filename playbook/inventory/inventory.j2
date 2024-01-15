@@ -24,4 +24,10 @@ localhost internal_ip=127.0.0.1
 {% for host in hosts -%}
 {{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }} node_name={{ host.node_name }} node_role={{ host.node_role }}
 {% endfor -%}
+
+{% elif group == 'logstash' %}
+[{{ group }}]
+{% for host in hosts -%}
+{{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }}
+{% endfor -%}
 {% endif %}

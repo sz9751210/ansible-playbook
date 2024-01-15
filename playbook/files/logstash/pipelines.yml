@@ -1,0 +1,25 @@
+# This file is where you define your pipelines. You can define multiple.
+# # For more information on multiple pipelines, see the documentation:
+# #   https://www.elastic.co/guide/en/logstash/current/multiple-pipelines.html
+#
+- pipeline.id: main
+  path.config: "/etc/logstash/pipelines/logstash.conf"
+
+# nginx
+- pipeline.id: nginx.access
+  path.config: "/etc/logstash/pipelines/nginx/nginx.access.conf"
+
+- pipeline.id: nginx.error
+  path.config: "/etc/logstash/pipelines/nginx/nginx.error.conf"
+
+# haproxy
+- pipeline.id: haproxy.access
+  path.config: "/etc/logstash/pipelines/haproxy/haproxy.access.conf"
+
+# json
+- pipeline.id: json
+  path.config: "/etc/logstash/pipelines/json/json.conf"
+
+# php-fpm
+- pipeline.id: php-fpm
+  path.config: "/etc/logstash/pipelines/php-fpm/php-fpm.conf"

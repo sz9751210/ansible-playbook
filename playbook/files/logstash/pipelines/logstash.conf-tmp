@@ -1,0 +1,46 @@
+input {
+  beats {
+  port => "5044"
+  ssl  => false
+  }
+  dead_letter_queue {
+    path => "/var/lib/logstash/dead_letter_queue"
+    commit_offsets => true
+    pipeline_id => "main"
+    tags => ["dlq"]
+  }
+}
+
+output {
+  if "dlq" in [tags]{
+    elasticsearch {
+      ssl => true
+      ssl_certificate_verification => true
+      manage_template => false
+      cacert => '/etc/logstash/certs/http_ca.crt'
+      hosts => []
+      user => "elastic"
+      password => "elastic"
+      template_name => "dead-letter-queue"
+      ilm_enabled => "true"
+      ilm_rollover_alias => "dead-letter-queue"
+      ilm_pattern => "000001"
+      ilm_policy => "elk"  
+    }
+  }
+  else {
+    elasticsearch {
+      ssl => true
+      ssl_certificate_verification => true
+      manage_template => false
+      cacert => '/etc/logstash/certs/http_ca.crt'
+      hosts => []
+      user => "elastic"
+      password => "elastic"
+      ilm_rollover_alias => "elk.access"
+      ilm_pattern => "000001"
+      ilm_policy => "elk"
+      }
+  }
+
+}

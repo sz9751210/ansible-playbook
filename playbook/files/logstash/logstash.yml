@@ -1,0 +1,10 @@
+http.host: "0.0.0.0"
+config.reload.automatic: true
+config.debug: true
+log.level: info
+path.logs: /var/log/logstash
+pipeline.separate_logs: true
+path.data: /var/lib/logstash
+dead_letter_queue.enable: true
+dead_letter_queue.max_bytes: 40960mb
+path.dead_letter_queue: "/var/lib/logstash/dead_letter_queue"
