@@ -1,0 +1,36 @@
+---
+# tasks file for kube_master
+- name: Start kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+
+- name: Pull kubeadm images
+  shell: sudo kubeadm config images pull
+
+- name: Initial kubernetes
+  shell: |
+    sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --cri-socket /run/containerd/containerd.sock
+
+- name: Copy kubernetes admin config to user home directory
+  shell: |
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+- name: Create Calico resources
+  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+  register: result
+
+- name: Create custom resources
+  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
+  register: result
+
+- name: Get token
+  shell: |
+    declare token
+    token=$(kubeadm token create --print-join-command)
+    echo token: $token > /tmp/token
+
+- name: Transfer token from master to local
+  fetch: src=/tmp/token dest={{ playbook_dir }}/vars/k8s/token flat=yes

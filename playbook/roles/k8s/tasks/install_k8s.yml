@@ -1,0 +1,83 @@
+---
+# tasks file for k8s
+- name: Copy kubernetes.repo
+  copy: 
+    src: "{{ playbook_dir }}/files/k8s/kubernetes.repo"
+    dest: /etc/yum.repos.d/kubernetes.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Clean YUM cache and update cache
+  shell: |
+    sudo yum clean all && sudo yum -y makecache
+
+- name: "Installing Kubeadm, Kubelet, and Kubectl"
+  yum:
+      name: [ 'kubectl', 'kubeadm', 'kubelet' ]
+      state: present
+      disable_excludes: kubernetes
+
+- name: Disable swap
+  shell: |
+    sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    sudo swapoff -a
+
+- name: Configure persistent loading of modules
+  copy: 
+    src: "{{ playbook_dir }}/files/k8s/containerd.conf"
+    dest: /etc/modules-load.d/containerd.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure overlay is enabled.
+  modprobe:
+    name: overlay
+    state: present
+
+- name: Ensure br_netfilter is enabled.
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Copy kubernetes.conf
+  copy: 
+    src: "{{ playbook_dir }}/files/k8s/kubernetes.conf"
+    dest: /etc/sysctl.d/kubernetes.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Apply sysctl changes
+  shell: |
+    sudo sysctl --system
+
+- name: Install Docker dependencies
+  yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+
+- name: Add Docker repository
+  shell: |
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Install containerd
+  yum:
+    name: containerd
+    state: present
+    update_cache: yes
+
+- name: Configure containerd
+  shell: |
+    sudo mkdir -p /etc/containerd
+    sudo containerd config default > /etc/containerd/config.toml
+
+- name: Restart containerd
+  service:
+    name: containerd
+    state: restarted
+    enabled: yes

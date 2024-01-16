@@ -1,0 +1,13 @@
+---
+- name: Install k8s
+  include: install_k8s.yml
+
+- name: Set up k8s init master
+  include: setup_k8s_master.yml
+  when:
+    - inventory_hostname in groups["k8s_master"]
+
+- name: Set up k8s slave
+  include: setup_k8s_slave.yml  
+  when:
+    - inventory_hostname in groups["k8s_slave"]

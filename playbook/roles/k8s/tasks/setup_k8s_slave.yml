@@ -1,0 +1,10 @@
+---
+# tasks file for kube_slave
+- name: Start kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+
+- name: "Joining the cluster"
+  shell: "{{ token }}"
+  ignore_errors: True

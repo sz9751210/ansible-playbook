@@ -1,0 +1,46 @@
+---
+- name: Create instances
+  hosts: k8s_slave
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/vars.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create.yml
+      run_once: true
+
+- name: Setup instances
+  hosts: k8s_slave
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks: 
+    - include_tasks: roles/instance/tasks/setup.yml
+
+- name: Install k8s_slave
+  hosts: k8s_slave
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/k8s/token
+  tasks: 
+    - include_tasks: roles/k8s/tasks/main.yml
+
+- name: Install Monitor
+  hosts: k8s_slave
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/monitor/vars.yml
+  tasks:
+    - include_tasks: roles/monitor/tasks/main.yml
+
+- name: Install Google Ops Agent
+  hosts: k8s_slave
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks:
+    - include_tasks: roles/ops_agent/tasks/main.yml
