@@ -1,0 +1,10 @@
+[Unit]
+Description=Prometheus Service 
+Wants=network-online.target 
+After=network-online.target 
+
+[Service] 
+Restart=on-failure 
+ExecStart=/usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --web.enable-lifecycle --log.level=debug 
+[Install] 
+WantedBy=default.target 

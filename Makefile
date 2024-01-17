@@ -3,7 +3,7 @@
 PYTHON := python3
 SCRIPT_PREFIX := gen_
 PLAYBOOK_DIR := playbook
-UP_PLAYBOOK := gce gcs docker_gce server_gce elastic_gce logstash_gce kibana_gce filebeat_gce influxdb_gce jenkins_gce
+UP_PLAYBOOK := gce gcs docker_gce server_gce elastic_gce logstash_gce kibana_gce filebeat_gce influxdb_gce jenkins_gce prometheus_gce
 DOWN_PLAYBOOK := gce
 
 help:
