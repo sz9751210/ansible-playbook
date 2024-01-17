@@ -1,0 +1,64 @@
+---
+- name: Create instances
+  hosts: influxdb
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/vars.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create.yml
+      run_once: true
+
+- name: Setup instances
+  hosts: influxdb
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks: 
+    - include_tasks: roles/instance/tasks/setup.yml
+
+- name: Create Disk
+  hosts: influxdb
+  gather_facts: no
+  connection: local
+  vars_files:
+    - vars/instance/vars.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/create_disk.yml
+      run_once: true
+
+- name: Setup Disk
+  hosts: influxdb
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/instance/vars.yml
+  tasks:
+    - include_tasks: roles/instance/tasks/setup_disk.yml
+
+- name: Install Influxdb
+  hosts: influxdb
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks: 
+    - include_tasks: roles/influxdb/tasks/main.yml
+
+- name: Install Monitor
+  hosts: influxdb
+  become: yes
+  become_user: root
+  gather_facts: no
+  vars_files:
+    - vars/monitor/vars.yml
+  tasks:
+    - include_tasks: roles/monitor/tasks/main.yml
+
+- name: Install Google Ops Agent
+  hosts: influxdb
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks:
+    - include_tasks: roles/ops_agent/tasks/main.yml

@@ -1,0 +1,27 @@
+---
+- name: Copy influxdb libarary
+  copy:
+    src: "{{ playbook_dir }}/files/influxdb/influxdb-1.8.3.x86_64.rpm"
+    dest: /opt/influxdb.rpm
+    owner: root
+    group: root
+
+- name: Install Influxdb
+  yum: 
+    name: /opt/influxdb.rpm
+    state: present
+
+- name: Backup Influxdb.yml
+  command: cp /etc/influxdb/influxdb.conf /etc/influxdb/influxdb.conf.backup
+
+- name: Start influxdb
+  systemd:
+    name: influxdb
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Check influxdb status
+  shell: "systemctl status influxdb | grep -c 'active (running)'"
+  register: influxdb_status
+  until: influxdb_status.stdout.find("1") != -1

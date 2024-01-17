@@ -1,7 +1,7 @@
 [localhost]
 localhost internal_ip=127.0.0.1
 
-{% if group in ['gce', 'docker', 'logstash', 'kibana', 'filebeat', 'k8s_master', 'k8s_slave'] %}
+{% if group in ['gce', 'docker', 'logstash', 'kibana', 'filebeat', 'k8s_master', 'k8s_slave', 'influxdb'] %}
 [{{ group }}]
 {% for host in hosts -%}
 {{ host.hostname }} internal_ip={{ host.IP }} zone={{ host.zone }}
